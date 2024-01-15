@@ -1,0 +1,9 @@
+Module content
+App 1.0 App.qml
+AugmentationScreen 1.0 AugmentationScreen.qml
+CustomMenuItem 1.0 CustomMenuItem.qml
+PopupMethodChoice 1.0 PopupMethodChoice.qml
+SliderParameterItem 1.0 SliderParameterItem.qml
+ToupleParameterItem 1.0 ToupleParameterItem.qml
+ParameterValueTextField 1.0 ParameterValueTextField.qml
+BooleanParameterItem 1.0 BooleanParameterItem.qml
