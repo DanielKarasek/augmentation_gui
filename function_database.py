@@ -1,6 +1,6 @@
 from typing import List
 
-from PySide6.QtCore import Property
+from PySide6.QtCore import Property, Slot
 from imgaug import augmenters as iaa
 
 from function_model import FunctionModel, IFunctionFactory
@@ -36,9 +36,6 @@ class TranslateX(IFunctionFactory):
     def name(self):
         return self._name
 
-    def __call__(self) -> FunctionModel:
-        return FunctionModel(self._name, self._parameters, self._function, self._sub_functions_param)
-
 
 class Sequential(IFunctionFactory):
 
@@ -60,12 +57,6 @@ class Sequential(IFunctionFactory):
     @Property(str, constant=True)
     def name(self):
         return self._name
-
-    def __call__(self) -> FunctionModel:
-        return FunctionModel(self._name,
-                             self._parameters,
-                             self._function,
-                             self._sub_functions_param)
 
 
 class FunctionDatabase:

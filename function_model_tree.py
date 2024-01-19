@@ -1,5 +1,5 @@
 from __future__ import annotations
-from PySide6.QtCore import Qt, QAbstractItemModel, QModelIndex, QObject, Property
+from PySide6.QtCore import Qt, QAbstractItemModel, QModelIndex, QObject, Property, Slot
 from PySide6.QtGui import QStandardItem
 
 from function_database import Sequential
@@ -15,12 +15,14 @@ class FunctionModelItem:
         self.child_items = []
 
     def appendChild(self, item: FunctionModelItem):
+        item.parentItem = self
         if self.fnc_model.expects_sub_functions():
             self.child_items.append(item)
         else:
             raise ValueError(f"Function {self.fnc_model.name} doesn't expect subfunctions")
 
     def insertChild(self, position, item: FunctionModelItem):
+        item.parentItem = self
         if self.fnc_model.expects_sub_functions():
             self.child_items.insert(position, item)
         else:
@@ -54,7 +56,7 @@ class FunctionModelItem:
 class TreeModel(QAbstractItemModel):
     def __init__(self, parent=None):
         super(TreeModel, self).__init__(parent)
-        self.rootItem = FunctionModelItem(Sequential()())
+        self.rootItem = FunctionModelItem(Sequential().get_function_model())
 
     def columnCount(self, parent=QModelIndex()):
         if parent.isValid():
@@ -104,6 +106,21 @@ class TreeModel(QAbstractItemModel):
 
         return self.createIndex(parentItem.row(), 0, parentItem)
 
+    @Slot(int, result=QModelIndex)
+    def getIndex(self, currentIndex: int) -> QModelIndex:
+        stack = [(child,
+                  self.createIndex(self.rootItem.row(), 0, child))
+                 for child in self.rootItem.child_items]
+        currentRow = 0
+        while stack:
+            item, parentIndex = stack.pop(0)
+            if currentRow == currentIndex:
+                return self.createIndex(item.row(), 0, item)
+            currentRow += 1
+            stack = [(child, self.createIndex(item.row(), 0, item)) for child in item.child_items] + stack
+
+        return QModelIndex()
+
     def rowCount(self, parent=QModelIndex()):
         if parent.column() > 0:
             return 0
@@ -112,5 +129,25 @@ class TreeModel(QAbstractItemModel):
             parentItem = self.rootItem
         else:
             parentItem = parent.internalPointer()
-        print(parentItem.childCount())
         return parentItem.childCount()
+
+    @Slot(QModelIndex, FunctionModel, bool, result=bool)
+    def addItemAtIndex(self, index: QModelIndex, fnc_model: FunctionModel, as_child: bool = True):
+        if not index.isValid():
+            return False
+
+        item = index.internalPointer()
+        new_item = FunctionModelItem(fnc_model)
+
+        if as_child:
+            self.beginInsertRows(index, item.childCount(), item.childCount())
+            item.appendChild(new_item)
+            self.endInsertRows()
+        else:
+            parent_index = self.parent(index)
+            position = item.row() + 1
+            self.beginInsertRows(parent_index, position, position)
+            item.parent().insertChild(position, new_item)
+            self.endInsertRows()
+
+        return True

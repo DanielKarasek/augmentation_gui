@@ -52,6 +52,7 @@ Rectangle{
             value_constraints: root.constraints
             onTextChangedSuccessfully:
             {
+                console.log("text changed successfully");
                 slider.value = parseFloat(text);
                 root.value = parseFloat(text);
             }

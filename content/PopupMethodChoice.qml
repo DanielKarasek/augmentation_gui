@@ -10,6 +10,7 @@ Popup {
     y: (parent.height - height) / 2
     closePolicy: "NoAutoClose"
     property var chosenIndex: -1
+    property bool insert_into: false
     modal: true
     focus: true
     padding: 0
@@ -174,10 +175,12 @@ Popup {
             Layout.fillWidth: true
             width: parent.width / 2
             onClicked: {
+                let x = methodsList.model[methodsList.selectedIndex].get_function_model(true);
+                console.log(chosenIndex, x, insert_into);
+                treeView.model.addItemAtIndex(chosenIndex, x, insert_into);
                 // Add your code here
             }
         }
-
         Button {
             id: buttonCancel
             text: "Cancel"

@@ -107,16 +107,12 @@ Window {
                     delegate: Item {
                         id: treeDelegate
 
-                        Component.onCompleted: {
-                            console.log("model", model.display)
-                        }
                         MouseArea {
                             id: mouseArea
                             anchors.fill: parent
                             acceptedButtons: Qt.RightButton | Qt.LeftButton
                             onClicked: (mouse) => {
                                            if (mouse.button === Qt.LeftButton) {
-
                                                treeView.currentIndex = index
                                                if (treeDelegate.isTreeNode && mouse.x <
                                                    treeDelegate.indent * (treeDelegate.depth + 1)) {
@@ -124,15 +120,28 @@ Window {
                                                }
                                            }
                                            if (mouse.button === Qt.RightButton)
-                                           contextMenu.popup()
+                                           {
+                                               treeView.currentIndex = index
+                                               contextMenu.popup();
+                                           }
                                        }
                         }
                         Menu {
                             id: contextMenu
                             CustomMenuItem {
-                                menuItemText: "Add"
+                                menuItemText: "Add after"
                                 onTriggered: {
-                                    popupMethodChoice.chosenIndex = treeView.currentIndex
+                                    popupMethodChoice.chosenIndex = treeView.model.getIndex(index)
+                                    popupMethodChoice.insert_into = false
+                                    popupMethodChoice.open()
+                                }
+                            }
+                            CustomMenuItem{
+                                menuItemText: "Add into"
+                                height: model.display.expects_sub_functions() ? menuItemText.implicitHeight : 0
+                                onTriggered: {
+                                    popupMethodChoice.chosenIndex = treeView.model.getIndex(index)
+                                    popupMethodChoice.insert_into = true
                                     popupMethodChoice.open()
                                 }
                             }
@@ -171,8 +180,6 @@ Window {
                             anchors.verticalCenter: label.verticalCenter
                             text: "▸"
                             rotation: treeDelegate.expanded ? 90 : 0
-                            Component.onCompleted:{
-                            console.log("indicator", treeDelegate.hasChildren);}
                         }
 
                         Text {

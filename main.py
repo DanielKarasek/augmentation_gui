@@ -5,7 +5,7 @@ from pathlib import Path
 
 from PySide6.QtCore import QCoreApplication, QObject, Signal, Property
 from PySide6.QtGui import QGuiApplication, QFontDatabase, QStandardItem, QStandardItemModel
-from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtQml import qmlRegisterType, QQmlApplicationEngine
 
 from function_database import FunctionDatabase, TranslateX, Sequential
 from function_model_tree import TreeModel, FunctionModelItem
@@ -66,9 +66,10 @@ if __name__ == "__main__":
     model.appendRow(item)
 
     tree_model = TreeModel()
-    tree_model.rootItem.appendChild(FunctionModelItem(TranslateX()(), tree_model.rootItem))
-    item = FunctionModelItem(Sequential()(), tree_model.rootItem)
-    item.appendChild(FunctionModelItem(TranslateX()(), item))
+    tree_model.rootItem.appendChild(FunctionModelItem(TranslateX().get_function_model(), tree_model.rootItem))
+    item = FunctionModelItem(Sequential().get_function_model(), tree_model.rootItem)
+    item.appendChild(FunctionModelItem(TranslateX().get_function_model(), item))
+    item.appendChild(FunctionModelItem(TranslateX().get_function_model(), item))
     tree_model.rootItem.appendChild(item)
     # Call the index method
     index = tree_model.index(0, 0)
@@ -92,7 +93,7 @@ if __name__ == "__main__":
     model3.appendRow(item)
     model3.appendRow(item2)
     model3.appendRow(item3)
-    instantiated_function = FunctionDatabase.function_database[0]()
+    instantiated_function = FunctionDatabase.function_database[0].get_function_model()
     engine.rootContext().setContextProperty("functionModel", instantiated_function)
 
     engine.load(qml_file)

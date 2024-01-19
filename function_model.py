@@ -1,6 +1,7 @@
 from typing import List
 
-from PySide6.QtCore import Property, QObject
+from PySide6.QtCore import Property, QObject, Slot
+from PySide6.QtQml import QQmlEngine
 
 from parameter_models.parameter_interface import Parameter
 
@@ -26,6 +27,7 @@ class FunctionModel(QObject):
     def parameters(self):
         return self._parameters
 
+    @Slot(result=bool)
     def expects_sub_functions(self):
         return self._sub_functions_param != ""
 
@@ -37,6 +39,7 @@ class FunctionModel(QObject):
 
     def __str__(self):
         return f"{self._name}: {self._parameters}"
+
 
 class IFunctionFactory(QObject):
 
@@ -63,8 +66,11 @@ class IFunctionFactory(QObject):
     def name(self):
         return self._name
 
-    def __call__(self):
-        return FunctionModel(self._name,
-                             self._parameters,
-                             self._function,
-                             self._sub_functions_param)
+    @Slot(bool, result=FunctionModel)
+    def get_function_model(self, from_qml=False):
+        function_model = FunctionModel(self._name,
+                                       self._parameters,
+                                       self._function,
+                                       self._sub_functions_param,
+                                       self if from_qml else None)
+        return function_model

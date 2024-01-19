@@ -28,7 +28,11 @@ TextField {
     }
 
     required property var value_constraints
-    validator: DoubleValidator {}
+    validator: RegularExpressionValidator
+    {
+        id: doubleChecker
+        regularExpression: new RegExp("^-?[0-9]+([.][0-9]{1,2})?$") ? value_constraints.data_type === "float" : new RegExp("^-?[0-9]+$")
+    }
     property int decimal: value_constraints.data_type === "float" ? 2 : 0
     onEditingFinished:
             {
