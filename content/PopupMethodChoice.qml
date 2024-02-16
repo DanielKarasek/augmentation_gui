@@ -9,8 +9,19 @@ Popup {
     x: (parent.width - width) / 2
     y: (parent.height - height) / 2
     closePolicy: "NoAutoClose"
+    clip : true
+
+    background: Rectangle{
+        width: 200
+        height: 300
+        color: "gray"
+        border.width: 0
+        radius: 10
+
+    }
     property var chosenIndex: -1
     property bool insert_into: false
+    required property var functionDatabaseModel
     modal: true
     focus: true
     padding: 0
@@ -20,6 +31,7 @@ Popup {
         height: 30
         color: "lightgray"
         border.width: 0
+
         MouseArea {
             id: dragArea
             anchors.fill: parent
@@ -38,13 +50,13 @@ Popup {
         }
 
         Text {
-            text: "Drag to move"
+            text: "Choose a method"
             anchors.centerIn: parent
         }
     }
     ListView {
         id: methodsList
-
+        model: functionDatabaseModel
         property int selectedIndex: -1
         anchors.left: parent.left
         anchors.right: parent.right
@@ -56,7 +68,7 @@ Popup {
                 id: dragHandle
                 implicitWidth: 5
                 radius: 2
-                color: "gray"
+                color: "darkgray"
             }
             MouseArea {
                 id: mouseArea
@@ -83,14 +95,14 @@ Popup {
                 }
 
                 onEntered: {
-                    colorAnimation.from = "gray";
+                    colorAnimation.from = "darkgray";
                     colorAnimation.to = "lightgray";
                     colorAnimation.start();
                 }
 
                 onExited: {
                     colorAnimation.from = "lightgray";
-                    colorAnimation.to = "gray";
+                    colorAnimation.to = "darkgray";
                     colorAnimation.start();
                 }
                 ColorAnimation {
@@ -105,13 +117,12 @@ Popup {
             }
         }
 
-        model: functionDatabase
         delegate: Item {
             width: methodsList.width
             height: 30
             Rectangle {
                 anchors.fill: parent
-                color: index === methodsList.selectedIndex ? "blue" : "transparent" // Change the color based on whether the item is selected
+                color: index === methodsList.selectedIndex ? "lightblue" : "transparent" // Change the color based on whether the item is selected
 
             }
 
@@ -154,13 +165,6 @@ Popup {
         anchors.bottom: buttonsRow.top
 
     }
-    background: Rectangle{
-        width: 200
-        height: 300
-        color: "black"
-        border.width: 0
-
-    }
     RowLayout {
         id: buttonsRow
         width: parent.width
@@ -177,8 +181,7 @@ Popup {
             onClicked: {
                 let x = methodsList.model[methodsList.selectedIndex].get_function_model(true);
                 console.log(chosenIndex, x, insert_into);
-                treeView.model.addItemAtIndex(chosenIndex, x, insert_into);
-                // Add your code here
+                backendModel.treeModel.addItemAtIndex(chosenIndex, x, insert_into);
             }
         }
         Button {

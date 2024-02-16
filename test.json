@@ -1,0 +1,186 @@
+{
+  "pipeline name": "proseco\n",
+  "data": {
+    "fnc_model": {
+      "name": "Sequential",
+      "parameters": [],
+      "sub_functions_param": "children"
+    },
+    "child_items": [
+      {
+        "fnc_model": {
+          "name": "Translate X",
+          "parameters": [
+            {
+              "type": "tupleparameter",
+              "state": {
+                "name": "Shift in percentage",
+                "parameter_name": "percent",
+                "fields": [
+                  {
+                    "type": "description",
+                    "state": {
+                      "description": "from: "
+                    }
+                  },
+                  {
+                    "type": "numberparameter",
+                    "state": {
+                      "name": "Low end",
+                      "parameter_name": "low_end",
+                      "value": -0.5,
+                      "constraints": {
+                        "min_value": -1.0,
+                        "max_value": 1.0,
+                        "step_size": 0.01,
+                        "data_type": "float"
+                      }
+                    }
+                  },
+                  {
+                    "type": "description",
+                    "state": {
+                      "description": "to: "
+                    }
+                  },
+                  {
+                    "type": "numberparameter",
+                    "state": {
+                      "name": "High end",
+                      "parameter_name": "high_end",
+                      "value": 0.5,
+                      "constraints": {
+                        "min_value": -1.0,
+                        "max_value": 1.0,
+                        "step_size": 0.01,
+                        "data_type": "float"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "sub_functions_param": ""
+        },
+        "child_items": []
+      },
+      {
+        "fnc_model": {
+          "name": "Translate X",
+          "parameters": [
+            {
+              "type": "tupleparameter",
+              "state": {
+                "name": "Shift in percentage",
+                "parameter_name": "percent",
+                "fields": [
+                  {
+                    "type": "description",
+                    "state": {
+                      "description": "from: "
+                    }
+                  },
+                  {
+                    "type": "numberparameter",
+                    "state": {
+                      "name": "Low end",
+                      "parameter_name": "low_end",
+                      "value": -0.5,
+                      "constraints": {
+                        "min_value": -1.0,
+                        "max_value": 1.0,
+                        "step_size": 0.01,
+                        "data_type": "float"
+                      }
+                    }
+                  },
+                  {
+                    "type": "description",
+                    "state": {
+                      "description": "to: "
+                    }
+                  },
+                  {
+                    "type": "numberparameter",
+                    "state": {
+                      "name": "High end",
+                      "parameter_name": "high_end",
+                      "value": 0.5,
+                      "constraints": {
+                        "min_value": -1.0,
+                        "max_value": 1.0,
+                        "step_size": 0.01,
+                        "data_type": "float"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "sub_functions_param": ""
+        },
+        "child_items": []
+      },
+      {
+        "fnc_model": {
+          "name": "Translate X",
+          "parameters": [
+            {
+              "type": "tupleparameter",
+              "state": {
+                "name": "Shift in percentage",
+                "parameter_name": "percent",
+                "fields": [
+                  {
+                    "type": "description",
+                    "state": {
+                      "description": "from: "
+                    }
+                  },
+                  {
+                    "type": "numberparameter",
+                    "state": {
+                      "name": "Low end",
+                      "parameter_name": "low_end",
+                      "value": -0.5,
+                      "constraints": {
+                        "min_value": -1.0,
+                        "max_value": 1.0,
+                        "step_size": 0.01,
+                        "data_type": "float"
+                      }
+                    }
+                  },
+                  {
+                    "type": "description",
+                    "state": {
+                      "description": "to: "
+                    }
+                  },
+                  {
+                    "type": "numberparameter",
+                    "state": {
+                      "name": "High end",
+                      "parameter_name": "high_end",
+                      "value": 0.5,
+                      "constraints": {
+                        "min_value": -1.0,
+                        "max_value": 1.0,
+                        "step_size": 0.01,
+                        "data_type": "float"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "sub_functions_param": ""
+        },
+        "child_items": []
+      }
+    ]
+  }
+}

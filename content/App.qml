@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 import AugmentationThingie
 
 Window {
@@ -12,11 +13,57 @@ Window {
     visible: true
     color: "#000000ff"
     title: "AugmentationThingie"
-
-
-    PopupMethodChoice{
-        id: popupMethodChoice
+    
+    FileDialog {
+        id: savePipelineFileDialog
+        title: "Save File"
+        fileMode: FileDialog.SaveFile
+        nameFilters: ["Model files (*.json)"]
+        selectedFile: "default.json"
+        onAccepted: {
+            backendModel.save_model_to_file(savePipelineFileDialog.selectedFile)
+        }
     }
+    FileDialog{
+        id: loadPipelineFileDialog
+        title: "Load File"
+        fileMode: FileDialog.ExistingFile
+        nameFilters: ["Model files (*.json)"]
+        onAccepted: {
+            backendModel.load_model(loadPipelineFileDialog.selectedFile)
+        }
+    }
+
+    FolderDialog{
+        id: loadDatasetFolderDialog
+        title: "Load Dataset"
+        options: FolderDialog.ReadOnly
+        onAccepted: {
+            backendModel.load_dataset(loadDatasetFolderDialog.selectedFolder)
+        }
+    }
+
+    PopupNewAug {
+        id: popupNewAug
+        title: "New Pipeline"
+        confirm_callback: backendModel.create_new_pipeline
+    }
+
+    Popup {
+        x: 10
+        y: (contentPages.height - imagePopup.height)/2 + toolbar.height + 8
+        id: imagePopup
+        property string imageSource
+        property real minDimension: Math.min(contentPages.height - 4, contentPages.width - augmentPreviewContainer.width - 20)
+
+        height: minDimension
+        width: minDimension
+        Image {
+            anchors.fill: parent
+            source: "image://image_provider/" + imagePopup.imageSource + "?id=" + Math.random()
+        }
+    }
+
     Rectangle {
         id: bg
         color: "#1d2226"
@@ -28,62 +75,41 @@ Window {
         anchors.topMargin: 0
         anchors.bottomMargin: 0
 
-        Rectangle {
-            id: titlebar
-
-            height: 44
-            color: "#0c0f10"
-            border.color: "#404040"
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.leftMargin: 0
-            anchors.rightMargin: 0
-            anchors.topMargin: 0
-        }
-
+        CustomToolbar {id: toolbar}
         Rectangle {
             id: contentPages
+
+            property var backendModel: AugmentationModel
+
+
+
+            PopupNewAug{
+                id: popupChangeName
+                title: "Change pipeline name"
+                confirm_callback: backendModel.change_pipeline_name
+            }
+
+            PopupMethodChoice{
+                id: popupMethodChoice
+                functionDatabaseModel: backendModel.functionDatabase
+            }
             color: "#1d2226"
             border.color: "#1d2226"
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.top: titlebar.bottom
+            anchors.top: toolbar.bottom
             anchors.bottom: parent.bottom
             anchors.leftMargin: 50
             anchors.rightMargin: 50
             anchors.topMargin: 0
             anchors.bottomMargin: 50
 
-            Rectangle {
+            AugmentationTitle{
                 id: augmentationTitle
-                height: 100
-                color: "#00ffffff"
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.leftMargin: 0
-                anchors.rightMargin: 0
-                anchors.topMargin: 0
-                Text {
-                    id: augmentationTitleText
-                    color: "#cbcece"
-                    text: augmentationString
-
-                    property var model: augmentationTitleTextModel
-                    property var augmentationString: model.augmentationString
-                    anchors.fill: parent
-                    anchors.leftMargin: 0
-                    font.pixelSize: 70
-                    horizontalAlignment: Text.AlignLeft
-                    verticalAlignment: Text.AlignVCenter
-                    font.weight: Font.Medium
-                    minimumPointSize: 50
-                    minimumPixelSize: 50
-                    fontSizeMode: Text.Fit
-                    styleColor: "#ffffff"
-                }
+                popupChangeName: popupChangeName
+                pipelineName: backendModel.augmentationString
             }
+
             RowLayout {
                 anchors.left: parent.left
                 anchors.right: parent.right
@@ -91,241 +117,11 @@ Window {
                 anchors.topMargin: 0
                 anchors.bottom: parent.bottom
                 spacing: 40
-
-                TreeView {
-                    id: treeView
-                    model: myModel
-
-                    property var currentIndex: null
-                    transformOrigin: Item.Center
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Layout.maximumWidth: 260
-                    Layout.minimumWidth: 260
-
-
-                    delegate: Item {
-                        id: treeDelegate
-
-                        MouseArea {
-                            id: mouseArea
-                            anchors.fill: parent
-                            acceptedButtons: Qt.RightButton | Qt.LeftButton
-                            onClicked: (mouse) => {
-                                           if (mouse.button === Qt.LeftButton) {
-                                               treeView.currentIndex = index
-                                               if (treeDelegate.isTreeNode && mouse.x <
-                                                   treeDelegate.indent * (treeDelegate.depth + 1)) {
-                                                   treeView.toggleExpanded(row)
-                                               }
-                                           }
-                                           if (mouse.button === Qt.RightButton)
-                                           {
-                                               treeView.currentIndex = index
-                                               contextMenu.popup();
-                                           }
-                                       }
-                        }
-                        Menu {
-                            id: contextMenu
-                            CustomMenuItem {
-                                menuItemText: "Add after"
-                                onTriggered: {
-                                    popupMethodChoice.chosenIndex = treeView.model.getIndex(index)
-                                    popupMethodChoice.insert_into = false
-                                    popupMethodChoice.open()
-                                }
-                            }
-                            CustomMenuItem{
-                                menuItemText: "Add into"
-                                height: model.display.expects_sub_functions() ? menuItemText.implicitHeight : 0
-                                onTriggered: {
-                                    popupMethodChoice.chosenIndex = treeView.model.getIndex(index)
-                                    popupMethodChoice.insert_into = true
-                                    popupMethodChoice.open()
-                                }
-                            }
-                            CustomMenuItem {
-                                menuItemText: "Remove"
-                            }
-                        }
-
-                        Rectangle {
-                            id: highlightRect
-                            color: treeView.currentIndex === index ? "#214283" : "transparent"
-                            anchors.fill: parent
-                        }
-
-                        implicitWidth: padding + label.x + label.implicitWidth + padding
-                        implicitHeight: label.implicitHeight * 1.5
-
-                        readonly property real indent: 20
-                        readonly property real padding: 5
-
-                        // Assigned to by TreeView:
-                        required property TreeView treeView
-                        required property bool isTreeNode
-                        required property bool expanded
-                        required property int hasChildren
-                        required property int depth
-
-                        TapHandler {
-                            onTapped: treeView.toggleExpanded(row)
-                        }
-
-                        Text {
-                            id: indicator
-                            visible: treeDelegate.isTreeNode && treeDelegate.hasChildren
-                            x: 5 + padding + (treeDelegate.depth * treeDelegate.indent)
-                            anchors.verticalCenter: label.verticalCenter
-                            text: "▸"
-                            rotation: treeDelegate.expanded ? 90 : 0
-                        }
-
-                        Text {
-                            id: label
-                            x: 5 + padding + (treeDelegate.isTreeNode ? (treeDelegate.depth + 1) * treeDelegate.indent : 0)
-                            width: treeDelegate.width - treeDelegate.padding - x
-                            clip: true
-                            text: model.display.name
-                            anchors.verticalCenter: parent.verticalCenter
-                            color: "white"
-
-                        }
-
-                    }
-                }
-                Rectangle {
-                    id: parameteresContainer
-                    color: "#101215"
-                    radius: 40
-
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 280
-                    Layout.minimumWidth: 280
-                    Layout.fillHeight: true
-
-
-                    Rectangle {
-
-                        id: parameteresSubContainer
-                        color: "#00ffffff"
-                        anchors.fill: parent
-                        anchors.leftMargin: 10
-                        anchors.rightMargin: 10
-                        anchors.topMargin: 15
-                        anchors.bottomMargin: 40
-
-                        TextArea {
-                            id: text1
-                            color: "#ffffff"
-                            text: functionModel.name
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            anchors.top: parent.top
-                            anchors.bottom: parametersList.top
-                            anchors.bottomMargin: 0
-                            font.pixelSize: 20
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignTop
-                            wrapMode: Text.WordWrap
-                            font.underline: false
-                            font.italic: false
-                            font.bold: false
-                        }
-                        ListView {
-                            id: parametersList
-                            anchors.fill: parent
-                            anchors.topMargin: 60
-                            spacing: 10
-                            model: functionModel.parameters
-
-                            Component.onCompleted: {
-                                console.log("parameterLoader", functionModel.parameters)
-                            }
-                            delegate: Item {
-                                width: ListView.view.width
-                                height: parameterLoader.implicitHeight
-                                Loader {
-                                    id: parameterLoader
-                                    anchors.fill: parent
-                                    sourceComponent: modelData.type === "numberparameter" ? numberParameterComponent
-                                        : modelData.type === "tupleparameter" ? tupleParameterComponent
-                                            : booleanParameterComponent
-                                    property var parameter: modelData
-                                    Component {
-                                    id: numberParameterComponent
-
-                                    SliderParameterItem {
-                                        id : sliderParameterItem
-                                        title: parameter.name
-                                        value: parameter.value
-                                        constraints: parameter.constraints
-                                        onValueChanged: {
-                                            parameter.value = value
-                                            console.log("sliderParameterItem", parameter.value)
-                                        }
-
-                                        implicitHeight: 50
-
-                                        Component.onCompleted: {
-                                            console.log("sliderParameterItem", parameter.constraints.min_value)
-                                        }
-                                        }
-                                    }
-                                    Component {
-                                        id: tupleParameterComponent
-
-                                        ToupleParameterItem {
-                                            tupleParameterModel: parameter
-                                            implicitHeight: height
-                                        }
-                                    }
-
-                                    Component {
-                                        id: booleanParameterComponent
-
-                                        BooleanParameterItem {
-                                            model: parameter
-                                            implicitHeight: height
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                Rectangle {
-                    id: augmentPreviewContainer
-                    x: 0
-                    y: 100
-                    color: "#00ffffff"
-                    Layout.fillWidth: true
-
-                    Layout.preferredWidth: parent.width*0.6
-                    Layout.fillHeight: true
-                    Rectangle {
-                        id: augmentPreviewSubContainer
-                        color: "#494949"
-                        radius: 40
-                        anchors.fill: parent
-                        anchors.leftMargin: 0
-                        anchors.rightMargin: 0
-                        anchors.topMargin: 0
-                        anchors.bottomMargin: 0
-                    }
-                }
-
-
-
-
-
-
-
+                PipelineViewContainer{}
+                FunctionDetails{functionModel: backendModel.treeModel}
+                AugmentationPreview{id: augmentPreviewContainer}
             }
         }
     }
-
-
 }
 

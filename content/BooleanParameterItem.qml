@@ -10,6 +10,7 @@ Rectangle{
     color: "transparent"
 
     height: rowLayout.childrenRect.height
+
     RowLayout{
         id: rowLayout
         anchors.left: parent.left

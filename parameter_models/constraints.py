@@ -38,6 +38,32 @@ class Constraints(QObject):
             return False
         return True
 
+    def to_dict(self):
+        return {
+            "min_value": self._min_value,
+            "max_value": self._max_value,
+            "step_size": self._step_size,
+            "data_type": self._data_type.__name__
+        }
+
+    @staticmethod
+    def from_dict(d: dict) -> 'Constraints':
+        min_value = d["min_value"]
+        max_value = d["max_value"]
+        step_size = d["step_size"]
+        data_type = d["data_type"]
+
+        def str2type(s: str):
+            if s == "int":
+                return int
+            elif s == "float":
+                return float
+            else:
+                raise ValueError(f"Unknown data type: {s}")
+        data_type = str2type(data_type)
+        me = Constraints(min_value, max_value, step_size, data_type)
+        return me
+
     def __repr__(self):
         return (f"Constraints({self._min_value}, "
                 f"{self._max_value}, {self._step_size}, {self._data_type})")

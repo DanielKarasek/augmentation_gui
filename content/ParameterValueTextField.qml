@@ -8,12 +8,16 @@ TextField {
     id: sliderValue
     horizontalAlignment: Text.AlignHCenter // Align the text horizontally to the center
     verticalAlignment: Text.AlignVCenter // Align the text vertically to the center
-    Layout.minimumWidth: 40
-    Layout.maximumWidth: 40
+    Layout.minimumWidth: 60
+    Layout.maximumWidth: 60
     Layout.minimumHeight: 30
     Layout.maximumHeight: 30
-    width: 40
-    height: 30
+    Layout.fillHeight: true
+    Layout.fillWidth: true
+    Layout.alignment: Qt.AlignCenter
+    background: Rectangle {
+        color: "#494949"
+    }
     color: "#ffffff"
     text: "val"
     property string previous_valid_value: text
@@ -21,17 +25,12 @@ TextField {
     selectionColor: "#5e9dfc"
     placeholderTextColor: "#000000"
     placeholderText: qsTr("value")
-    Layout.fillHeight: true
-    Layout.alignment: Qt.AlignCenter
-    background: Rectangle {
-        color: "#494949"
-    }
 
     required property var value_constraints
     validator: RegularExpressionValidator
     {
         id: doubleChecker
-        regularExpression: new RegExp("^-?[0-9]+([.][0-9]{1,2})?$") ? value_constraints.data_type === "float" : new RegExp("^-?[0-9]+$")
+        regularExpression: value_constraints.data_type === "float"  ? new RegExp("^-?[0-9]+([.][0-9]{1,2})?$") : new RegExp("^-?[0-9]+$")
     }
     property int decimal: value_constraints.data_type === "float" ? 2 : 0
     onEditingFinished:

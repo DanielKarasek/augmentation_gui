@@ -7,3 +7,6 @@ SliderParameterItem 1.0 SliderParameterItem.qml
 ToupleParameterItem 1.0 ToupleParameterItem.qml
 ParameterValueTextField 1.0 ParameterValueTextField.qml
 BooleanParameterItem 1.0 BooleanParameterItem.qml
+PipelineView 1.0 PipelineView.qml
+FunctionDetails 1.0 FunctionDetails.qml
+AugmentationPreview 1.0 AugmentationPreview.qml

@@ -8,7 +8,7 @@ Rectangle{
     property var title: "Change Value"
     required property var constraints
     required property var value
-    height: rowLayout.height + titleLabel.height + 5
+    height: rowLayout.childrenRect.height + titleLabel.height + 5
     color: "transparent"
     Label {
         id: titleLabel
@@ -30,19 +30,27 @@ Rectangle{
         anchors.topMargin: 5
         Slider {
             id: slider
-
-            width: 188
-            height: 31
             value: root.value
             live: true
-            Layout.fillWidth: true
+            Layout.fillWidth: true // Slider will take up the rest of the available space
             Layout.fillHeight: true
+            Layout.minimumWidth: 180
             from: constraints.min_value
             to: constraints.max_value
             stepSize: constraints.step_size
             onValueChanged:
             {
-                root.value = slider.value;
+                if (constraints.data_type === "int")
+                {
+                    sliderValue2.text = parseInt(slider.value);
+                    root.value = parseInt(slider.value);
+
+                }
+                else if (constraints.data_type === "float")
+                {
+                    sliderValue2.text = slider.value.toFixed(2);
+                    root.value = parseFloat(slider.value);
+                }
             }
         }
         ParameterValueTextField
@@ -53,8 +61,16 @@ Rectangle{
             onTextChangedSuccessfully:
             {
                 console.log("text changed successfully");
-                slider.value = parseFloat(text);
-                root.value = parseFloat(text);
+                if (constraints.data_type === "int")
+                {
+                    slider.value = parseInt(text);
+                    root.value = parseInt(text);
+                }
+                else if (constraints.data_type === "float")
+                {
+                    slider.value = parseFloat(text);
+                    root.value = parseFloat(text);
+                }
             }
         }
     }

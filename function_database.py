@@ -1,99 +1,117 @@
-from typing import List
-
-from PySide6.QtCore import Property, Slot
-from imgaug import augmenters as iaa
-
-from function_model import FunctionModel, IFunctionFactory
-from parameter_models.constraints import Constraints
-from parameter_models.number_parameter import NumberParameter
-from parameter_models.parameter_interface import Parameter
-
-
-class TranslateX(IFunctionFactory):
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-    def _init_name(self) -> str:
-        return "Translate X"
-
-    def _init_parameters(self) -> List[Parameter]:
-        shift_x_percentage = NumberParameter("Shift in percentage",
-                                             0.5,
-                                             Constraints(0.,
-                                                         1.,
-                                                         0.01,
-                                                         float))
-        return [shift_x_percentage]
-
-    def _init_function(self) -> callable:
-        return iaa.TranslateX
-
-    def _init_sub_functions_param(self) -> str:
-        return ""
-
-    @Property(str, constant=True)
-    def name(self):
-        return self._name
-
-
-class Sequential(IFunctionFactory):
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-    def _init_name(self) -> str:
-        return "Sequential"
-
-    def _init_parameters(self) -> List[Parameter]:
-        return []
-
-    def _init_function(self) -> callable:
-        return iaa.Sequential
-
-    def _init_sub_functions_param(self) -> str:
-        return "children"
-
-    @Property(str, constant=True)
-    def name(self):
-        return self._name
+from function_factories.arithmetic.add import Add
+from function_factories.arithmetic.add_elementwise import AddElementwise
+from function_factories.arithmetic.add_gaussian_noise import AddGaussianNoise
+from function_factories.arithmetic.additive_laplace_noise import AdditiveLaplaceNoise
+from function_factories.arithmetic.additive_poisson_noise import AdditivePoissonNoise
+from function_factories.arithmetic.coarse_dropout import CoarseDropout
+from function_factories.arithmetic.coarse_pepper import CoarsePepper
+from function_factories.arithmetic.coarse_salt import CoarseSalt
+from function_factories.arithmetic.coarse_salt_and_pepper import CoarseSaltAndPepper
+from function_factories.arithmetic.contrast_normalization import ContrastNormalization
+from function_factories.arithmetic.dropout import Dropout
+from function_factories.arithmetic.dropout2d import Dropout2d
+from function_factories.arithmetic.invert import Invert
+from function_factories.arithmetic.jpeg_compression import JpegCompression
+from function_factories.arithmetic.multiply import Multiply
+from function_factories.arithmetic.multiply_elementwise import MultiplyElementwise
+from function_factories.arithmetic.pepper import Pepper
+from function_factories.arithmetic.salt import Salt
+from function_factories.arithmetic.salt_and_pepper import SaltAndPepper
+from function_factories.arithmetic.solarize import Solarize
+from function_factories.blur.average_blur import AverageBlur
+from function_factories.blur.bilateral_blur import BilateralBlur
+from function_factories.blur.gaussian_blur import GaussianBlur
+from function_factories.blur.mean_shift_blur import MeanShiftBlur
+from function_factories.blur.median_blur import MedianBlur
+from function_factories.blur.motion_blur import MotionBlur
+from function_factories.empty import Empty
+from function_factories.flip.fliplr import Fliplr
+from function_factories.flip.flipud import Flipud
+from function_factories.geometric.affine import Affine
+from function_factories.geometric.elastic_transformation import ElasticTransformation
+from function_factories.geometric.jigsaw import Jigsaw
+from function_factories.geometric.perspective_transform import PerspectiveTransform
+from function_factories.geometric.piecewise_affine import PiecewiseAffine
+from function_factories.geometric.roll import Roll
+from function_factories.geometric.rot90 import Rot90
+from function_factories.geometric.rotate import Rotate
+from function_factories.geometric.scale_x import ScaleX
+from function_factories.geometric.scale_y import ScaleY
+from function_factories.geometric.shear_x import ShearX
+from function_factories.geometric.shear_y import ShearY
+from function_factories.geometric.translate_x import TranslateX
+from function_factories.geometric.translate_y import TranslateY
+from function_factories.geometric.with_polar_warping import WithPolarWarping
+from function_factories.meta.one_of import OneOf
+from function_factories.meta.sequential import Sequential
+from function_factories.meta.some_of import SomeOf
+from function_factories.meta.sometimes import Sometimes
+from function_model import FunctionModel
 
 
 class FunctionDatabase:
-    function_database = [TranslateX(),
-                         Sequential()]
+    function_database = [Add(),
+                         AddElementwise(),
+                         AddGaussianNoise(),
+                         AdditiveLaplaceNoise(),
+                         AdditivePoissonNoise(),
+                         CoarseDropout(),
+                         CoarsePepper(),
+                         CoarseSalt(),
+                         CoarseSaltAndPepper(),
+                         ContrastNormalization(),
+                         Dropout(),
+                         Dropout2d(),
+                         Empty(),
+                         Invert(),
+                         JpegCompression(),
+                         Multiply(),
+                         MultiplyElementwise(),
+                         Pepper(),
+                         Salt(),
+                         SaltAndPepper(),
+                         Solarize(),
+
+                         Affine(),
+                         ScaleX(),
+                         ScaleY(),
+                         TranslateX(),
+                         TranslateY(),
+                         Rotate(),
+                         ShearX(),
+                         ShearY(),
+                         PiecewiseAffine(),
+                         PerspectiveTransform(),
+                         ElasticTransformation(),
+                         Rot90(),
+                         WithPolarWarping(),
+                         Jigsaw(),
+
+                         Sequential(),
+                         SomeOf(),
+                         OneOf(),
+                         Sometimes(),
+
+                         Fliplr(),
+                         Flipud(),
+
+                         GaussianBlur(),
+                         AverageBlur(),
+                         MedianBlur(),
+                         BilateralBlur(),
+                         MotionBlur(),
+                         MeanShiftBlur(),
+                         Roll(),
+                         ]
+
+    @staticmethod
+    def get_function_by_name(name: str) -> FunctionModel:
+        for fnc in FunctionDatabase.function_database:
+            if fnc.name == name:
+                return fnc.function
+        raise ValueError(f"Function with name {name} not found")
 
     @staticmethod
     def __iter__():
         return iter(FunctionDatabase.function_database)
 
-    # function_database = [FunctionModel("Translate x",
-    #                                    [
-    #                                        BooleanParameter("percent", False),
-    #                                        NumberParameter("percent",
-    #                                                        1,
-    #                                                        Constraints(0., 2., 0.01, float)),
-    #                                        NumberParameter("percent",
-    #                                                        1,
-    #                                                        Constraints(0., 4., 0.01, float)),
-    #                                        TupleParameter("kernel", fields_tuple=(StringDescription("k1"),
-    #                                                                               NumberParameter("k1",
-    #                                                                                               1,
-    #                                                                                               Constraints(1, 99999,
-    #                                                                                                           1, int)),
-    #                                                                               StringDescription("k2"),
-    #                                                                               NumberParameter("k2",
-    #                                                                                               1,
-    #                                                                                               Constraints(1, 99999,
-    #                                                                                                           1, int)),)
-    #                                                       )
-    #                                    ],
-    #                                    iaa.TranslateX,
-    #                                    "",),
-    #                      FunctionModel("Translate y",
-    #                                    [NumberParameter("percent",
-    #                                                     0,
-    #                                                     Constraints(0., 1., 0.01, float))],
-    #
-    #                                    iaa.TranslateY,
-    #                      "",)]

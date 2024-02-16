@@ -6,6 +6,7 @@ Rectangle{
     id: root
     property var tupleParameterModel
     height: row.childrenRect.height + label.height
+
     color: "transparent"
     Label{
         id: label
